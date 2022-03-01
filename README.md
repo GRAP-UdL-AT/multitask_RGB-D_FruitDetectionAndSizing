@@ -15,19 +15,19 @@ http://www.grap.udl.cat/en/publications/PApple_RGB-D-Size.html
 ```
 The structure of your files should be the following:
 
---detectron2
---training_maskrcnn.py
---inference.py
---metrics_detection.py
---utils_detection.py
---metrics_diamteter.py
---edit_weights.pkl
---utils_diameter.py
---data_fse
-----images 
-----gt_json
-----depthCropNpy
-----GT_diameters.txt
+--detectron2  
+--training_maskrcnn.py  
+--inference.py  
+--metrics_detection.py  
+--utils_detection.py  
+--metrics_diamteter.py  
+--edit_weights.pkl  
+--utils_diameter.py  
+--data_fse  
+----images   
+----gt_json  
+----depthCropNpy  
+----GT_diameters.txt  
 
 
 
