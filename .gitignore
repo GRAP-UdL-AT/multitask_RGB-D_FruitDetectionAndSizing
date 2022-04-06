@@ -1,12 +1,1 @@
 .idea/*
-__pycache__/*
-current_images.txt
-detectron2/build/*
-detectron2/detectron2/model_zoo/configs_old
-detectron2/dist/
-output/
-validation_losses.pkl
-weights.pickle
-.nfs000000000002097000009284
-edit_weights.pkl
-
