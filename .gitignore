@@ -11,4 +11,6 @@ output/
 validation_losses.pkl
 weights.pickle
 detectron2/build/
+.nfs0000000000020bb8000092b2
+
 
