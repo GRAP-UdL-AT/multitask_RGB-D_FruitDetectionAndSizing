@@ -1,6 +1,0 @@
-# ninja log v5
-2	19072	1623050920156586154	/mnt/gpid07/imatge/mar.ferrer/detectron2/build/temp.linux-x86_64-3.6/mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/cocoeval/cocoeval.o	feb946420ad803ce
-19076	41498	1623050942584750431	/mnt/gpid07/imatge/mar.ferrer/detectron2/build/temp.linux-x86_64-3.6/mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.o	f1f149cb3728d290
-41498	71034	1623050972120966748	/mnt/gpid07/imatge/mar.ferrer/detectron2/build/temp.linux-x86_64-3.6/mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/ROIAlignRotated/ROIAlignRotated_cpu.o	9c56b0fc9cb39a31
-2	73585	1623050974660985350	/mnt/gpid07/imatge/mar.ferrer/detectron2/build/temp.linux-x86_64-3.6/mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/vision.o	ba53abe6e3b149c0
-71034	81607	1623050982693044170	/mnt/gpid07/imatge/mar.ferrer/detectron2/build/temp.linux-x86_64-3.6/mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.o	da51e5305761a3cc
