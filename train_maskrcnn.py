@@ -194,18 +194,18 @@ def parse_args():
     parser.add_argument('--batch_size',dest='batch_size',default=2)
     parser.add_argument('--learing_rate',dest='learing_rate',default=0.00025)
     parser.add_argument('--experiment_name',dest='experiment_name',default='trial')
-    parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid08/users/mar.ferrer/data_fse/')
+    parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     args = parser.parse_args()
 
     return args
 if __name__ == '__main__':
 # ------------------------------------------------------HYPERPARAMS TO TEST-----------------------------------------------------
     args = parse_args()
-    lr = args.learing_rate
-    bs = args.batch_size
-    max_iter = args.num_iterations
-    checkpoint_period = args.checkpoint_period
-    eval_period = args.eval_period
+    lr = float(args.learing_rate)
+    bs = int(args.batch_size)
+    max_iter = int(args.num_iterations)
+    checkpoint_period = int(args.checkpoint_period)
+    eval_period = int(args.eval_period)
     experiment_name = args.experiment_name
     dataset_path = args.dataset_path
  # ------------------------------------------------------------------------------------------------------------------------------
@@ -228,6 +228,7 @@ if __name__ == '__main__':
     cfg.DATASETS.TRAIN = ("FujiSfM_train",)
     cfg.DATASETS.TEST =  ("FujiSfM_val",)
     cfg.DATALOADER.NUM_WORKERS = 4
+    #cfg.MODEL.WEIGHTS = os.path.join(os.getcwd(),'edit_weights.pkl')
     cfg.MODEL.WEIGHTS = os.path.join('edit_weights.pkl')
     #cfg.MODEL.WEIGHTS = os.path.join('/home/usuaris/imatge/mar.ferrer/Fruit_Detectron2_project/recerca/200630-Apple_size_measurement_using_SfM/code/detectron2/output/exp55/model_0005999.pth')
     cfg.SOLVER.IMS_PER_BATCH = bs
@@ -243,6 +244,10 @@ if __name__ == '__main__':
 
     trainer = MyTrainer(cfg)
     trainer.resume_or_load(resume=False)
+    if torch.cuda.is_available():
+        print('Number of cuda devices = ' + str(torch.cuda.device_count()) + ' ; Current cuda device = ' + torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        print('Not using cuda devices')
     trainer.train()
     print('FINISHED_TRAINING')
 
