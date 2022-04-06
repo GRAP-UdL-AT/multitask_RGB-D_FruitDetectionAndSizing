@@ -1,1 +1,14 @@
 .idea/*
+.nfs000000000002097000009284
+.nfs0000000000020a7d000092a1
+__pycache__/preprocess_input.cpython-36.pyc
+__pycache__/utils_detection.cpython-36.pyc
+current_images.txt
+detectron2/detectron2/model_zoo/configs_old
+detectron2/dist/
+edit_weights.pkl
+output/
+validation_losses.pkl
+weights.pickle
+detectron2/build/
+
