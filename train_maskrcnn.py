@@ -188,12 +188,12 @@ class MyTrainer(DefaultTrainer):
     
 def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate detection')
-    parser.add_argument('--num_iterations',dest='num_iterations',default=10000,help='maximum number of iterations (not epochs)')
-    parser.add_argument('--checkpoint_period',dest='checkpoint_period',default=1000,help='save the epoch periodically every X iterations')
-    parser.add_argument('--eval_period',dest='eval_period',default=1000,help='evaluate the model every X iterations (with the validation set)')
+    parser.add_argument('--num_iterations',dest='num_iterations',default=40000,help='maximum number of iterations (not epochs)')
+    parser.add_argument('--checkpoint_period',dest='checkpoint_period',default=500,help='save the epoch periodically every X iterations')
+    parser.add_argument('--eval_period',dest='eval_period',default=500,help='evaluate the model every X iterations (with the validation set)')
     parser.add_argument('--batch_size',dest='batch_size',default=2)
     parser.add_argument('--learing_rate',dest='learing_rate',default=0.00025)
-    parser.add_argument('--experiment_name',dest='experiment_name',default='trial')
+    parser.add_argument('--experiment_name',dest='experiment_name',default='trial2')
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     args = parser.parse_args()
 

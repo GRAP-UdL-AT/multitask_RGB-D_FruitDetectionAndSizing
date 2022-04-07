@@ -125,7 +125,7 @@ class BaseDiamRCNNHead(nn.Module):
     """
 
     @configurable
-    def __init__(self, *, loss_weight: float = 1.0, vis_period: int = 0):
+    def __init__(self, *, loss_weight: float = 5.0, vis_period: int = 0):
         """
         NOTE: this interface is experimental.
 
@@ -164,7 +164,7 @@ class BaseDiamRCNNHead(nn.Module):
                 # 2. load corresponding depth maps
                 # 3. add them to features tensor
                 
-                depth_path = '/mnt/gpid08/users/mar.ferrer/data_fse/depthCropNpy'
+                depth_path = '/home/usuaris/imatge/jgene/multitask_RGBD/data/depthCropNpy'
                 name = lines[0].split('.')[0]
                 depth_map = np.load(os.path.join(depth_path,name+'.npy'))
                 dim = len(x[0,0,0,:])
