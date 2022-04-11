@@ -125,7 +125,7 @@ class BaseDiamRCNNHead(nn.Module):
     """
 
     @configurable
-    def __init__(self, *, loss_weight: float = 5.0, vis_period: int = 0):
+    def __init__(self, *, loss_weight: float = 4.5, vis_period: int = 0):
         """
         NOTE: this interface is experimental.
 

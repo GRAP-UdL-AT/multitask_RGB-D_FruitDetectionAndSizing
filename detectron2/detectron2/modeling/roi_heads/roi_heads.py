@@ -822,7 +822,7 @@ class StandardROIHeads(ROIHeads):
             # 2. load corresponding depth maps
             # 3. add them to features tensor
             
-            depth_path = '/mnt/gpid08/users/mar.ferrer/data_fse/depthCropNpy'
+            depth_path = '/home/usuaris/imatge/jgene/multitask_RGBD/data/depthCropNpy'
  
             for k,key in enumerate(features.keys()):
                 for id,line in enumerate(lines):

@@ -96,6 +96,7 @@ class LossEvalHook(HookBase):
         start_time = time.perf_counter()
         total_compute_time = 0
         losses = []
+        diam_losses = []
         for idx, inputs in enumerate(self._data_loader): 
             with open('current_images.txt', 'w') as f:
                 f.write("%s\n" % inputs[0]['filename'])           
@@ -118,10 +119,13 @@ class LossEvalHook(HookBase):
                     ),
                     n=5,
                 )
-            loss_batch = self._get_loss(inputs)
+            loss_batch, diam_loss_batch = self._get_loss(inputs) #added by JGM(add diam_loss_batch to be plotted in tensorboard)
             losses.append(loss_batch)
+            diam_losses.append(diam_loss_batch) #added by JGM(add diam_loss_batch to be plotted in tensorboard)
         mean_loss = np.mean(losses)
+        mean_diam_loss = np.mean(diam_losses) #added by JGM(add diam_loss_batch to be plotted in tensorboard)
         self.trainer.storage.put_scalar('validation_loss', mean_loss)
+        self.trainer.storage.put_scalar('validation_diam_loss', mean_diam_loss) #add by JGM(add diam_loss_batch to be plotted in tensorboard)
         comm.synchronize()
 
         return losses
@@ -148,7 +152,8 @@ class LossEvalHook(HookBase):
             with open('validation_losses.pkl', 'wb') as handle:
                 pickle.dump(saved_losses, handle, protocol=pickle.HIGHEST_PROTOCOL)
         total_losses_reduced = sum(loss for loss in metrics_dict.values())
-        return total_losses_reduced
+        diam_losses_reduced = metrics_dict['loss_diam'] #add by JGM
+        return total_losses_reduced, diam_losses_reduced #modificed by JGM (add diam_losses_reduced)
         
         
     def after_step(self):
@@ -193,7 +198,7 @@ def parse_args():
     parser.add_argument('--eval_period',dest='eval_period',default=500,help='evaluate the model every X iterations (with the validation set)')
     parser.add_argument('--batch_size',dest='batch_size',default=2)
     parser.add_argument('--learing_rate',dest='learing_rate',default=0.00025)
-    parser.add_argument('--experiment_name',dest='experiment_name',default='trial2')
+    parser.add_argument('--experiment_name',dest='experiment_name',default='trial3')
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     args = parser.parse_args()
 
