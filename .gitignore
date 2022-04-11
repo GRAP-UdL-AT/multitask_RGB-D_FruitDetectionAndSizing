@@ -8,4 +8,6 @@ detectron2/dist/
 edit_weights.pkl
 output/
 validation_losses.pkl
+validation_losses_old.pkl
 weights.pickle
+
