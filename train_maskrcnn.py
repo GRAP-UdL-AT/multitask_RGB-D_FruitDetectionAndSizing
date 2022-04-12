@@ -82,10 +82,11 @@ def mapper(dataset_dict):
 
 
 class LossEvalHook(HookBase):
-    def __init__(self, eval_period, model, data_loader):
+    def __init__(self, eval_period, model, data_loader,output_dir):
         self._model = model
         self._period = eval_period
         self._data_loader = data_loader
+        self._output_dir = output_dir
     
     def _do_loss_eval(self):
         #pdb.set_trace()
@@ -137,19 +138,20 @@ class LossEvalHook(HookBase):
             k: v.detach().cpu().item() if isinstance(v, torch.Tensor) else float(v)
             for k, v in metrics_dict.items()
         }
-        if os.path.exists('validation_losses.pkl'):
+        val_losses_file = os.path.join(self._output_dir,'validation_losses.pkl')
+        if os.path.exists(val_losses_file):
             #load data
-            with open('validation_losses.pkl', 'rb') as handle:
+            with open(val_losses_file, 'rb') as handle:
                 saved_losses = pickle.load(handle)
             #append data
             saved_losses.append(metrics_dict)
             #upgrade data
-            with open('validation_losses.pkl', 'wb') as handle:
+            with open(val_losses_file, 'wb') as handle:
                 pickle.dump(saved_losses, handle, protocol=pickle.HIGHEST_PROTOCOL)
         else:
             saved_losses = []
             saved_losses.append(metrics_dict)
-            with open('validation_losses.pkl', 'wb') as handle:
+            with open(val_losses_file, 'wb') as handle:
                 pickle.dump(saved_losses, handle, protocol=pickle.HIGHEST_PROTOCOL)
         total_losses_reduced = sum(loss for loss in metrics_dict.values())
         diam_losses_reduced = metrics_dict['loss_diam'] #add by JGM
@@ -181,7 +183,8 @@ class MyTrainer(DefaultTrainer):
                 self.cfg,
                 self.cfg.DATASETS.TEST[0],
                 mapper
-            )
+            ),
+            cfg.OUTPUT_DIR
         ))
         return hooks
 
@@ -198,6 +201,7 @@ def parse_args():
     parser.add_argument('--eval_period',dest='eval_period',default=500,help='evaluate the model every X iterations (with the validation set)')
     parser.add_argument('--batch_size',dest='batch_size',default=2)
     parser.add_argument('--learing_rate',dest='learing_rate',default=0.00025)
+    parser.add_argument('--diam_loss_weight',dest='diam_loss_weight',default=1)
     parser.add_argument('--experiment_name',dest='experiment_name',default='trial3')
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     args = parser.parse_args()
@@ -207,6 +211,7 @@ if __name__ == '__main__':
 # ------------------------------------------------------HYPERPARAMS TO TEST-----------------------------------------------------
     args = parse_args()
     lr = float(args.learing_rate)
+    diam_loss_weight = float(args.diam_loss_weight)
     bs = int(args.batch_size)
     max_iter = int(args.num_iterations)
     checkpoint_period = int(args.checkpoint_period)
@@ -244,6 +249,8 @@ if __name__ == '__main__':
     cfg.TEST.EVAL_PERIOD = eval_period
     cfg.SOLVER.CHECKPOINT_PERIOD = checkpoint_period
     cfg.OUTPUT_DIR="./output/"+str(experiment_name)
+    cfg.DATASET_PATH = dataset_path
+    cfg.MODEL.ROI_DIAMETER_HEAD.DIAM_LOSS_WEIGHT = diam_loss_weight
 
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 

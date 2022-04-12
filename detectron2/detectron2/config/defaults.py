@@ -365,6 +365,8 @@ _C.MODEL.ROI_DIAMETER_HEAD.NORM = ""
 _C.MODEL.ROI_DIAMETER_HEAD.CLS_AGNOSTIC_MASK = False
 # Type of pooling operation applied to the incoming feature map for each RoI
 _C.MODEL.ROI_DIAMETER_HEAD.POOLER_TYPE = "ROIAlignV2"
+# Loss weight (JGM)
+_C.MODEL.ROI_DIAMETER_HEAD.DIAM_LOSS_WEIGHT = 1.0
 
 
 # ---------------------------------------------------------------------------- #
