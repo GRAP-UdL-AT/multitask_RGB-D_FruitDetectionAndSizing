@@ -99,7 +99,7 @@ class LossEvalHook(HookBase):
         losses = []
         diam_losses = []
         for idx, inputs in enumerate(self._data_loader): 
-            with open('current_images.txt', 'w') as f:
+            with open(os.path.join(self._output_dir,'current_images.txt'), 'w') as f:
                 f.write("%s\n" % inputs[0]['filename'])           
             if idx == num_warmup:
                 start_time = time.perf_counter()

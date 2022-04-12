@@ -257,7 +257,7 @@ def get_detection_dataset_dicts(names, filter_empty=True, min_keypoints=0, propo
 
 
 def build_batch_data_loader(
-    dataset, sampler, total_batch_size, *, aspect_ratio_grouping=False, num_workers=0
+    dataset, sampler, total_batch_size, *, aspect_ratio_grouping=False, num_workers=0, output_dir="/output"
 ):
     """
     Build a batched dataloader. The main differences from `torch.utils.data.DataLoader` are:
@@ -291,7 +291,7 @@ def build_batch_data_loader(
             collate_fn=operator.itemgetter(0),  # don't batch, but yield individual elements
             worker_init_fn=worker_init_reset_seed,
         )  # yield individual mapped dict
-        return AspectRatioGroupedDataset(data_loader, batch_size)
+        return AspectRatioGroupedDataset(data_loader, batch_size, output_dir=output_dir)
     else:
         batch_sampler = torch.utils.data.sampler.BatchSampler(
             sampler, batch_size, drop_last=True
@@ -341,13 +341,14 @@ def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
         "total_batch_size": cfg.SOLVER.IMS_PER_BATCH,
         "aspect_ratio_grouping": cfg.DATALOADER.ASPECT_RATIO_GROUPING,
         "num_workers": cfg.DATALOADER.NUM_WORKERS,
+        "output_dir": cfg.OUTPUT_DIR,
     }
 
 
 # TODO can allow dataset as an iterable or IterableDataset to make this function more general
 @configurable(from_config=_train_loader_from_config)
 def build_detection_train_loader(
-    dataset, *, mapper, sampler=None, total_batch_size, aspect_ratio_grouping=True, num_workers=0
+    dataset, *, mapper, sampler=None, total_batch_size, aspect_ratio_grouping=True, num_workers=0, output_dir="/output" #Edited by JGM (added output_dir)
 ):
     """
     Build a dataloader for object detection with some default features.
@@ -389,6 +390,7 @@ def build_detection_train_loader(
         total_batch_size,
         aspect_ratio_grouping=aspect_ratio_grouping,
         num_workers=num_workers,
+        output_dir=output_dir,
     )
 
 
