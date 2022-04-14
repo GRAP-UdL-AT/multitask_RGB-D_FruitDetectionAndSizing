@@ -244,8 +244,8 @@ if __name__ == '__main__':
     cfg.SOLVER.IMS_PER_BATCH = bs
     cfg.SOLVER.BASE_LR = lr  # pick a good LR
     cfg.SOLVER.MAX_ITER = max_iter  # 300 iterations seems good enough for this toy dataset; you will need to train longer for a practical dataset
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   # faster, and good enough for this toy dataset (default: 512)
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ballon). (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
+    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512   # (default: 512)
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class . (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
     cfg.TEST.EVAL_PERIOD = eval_period
     cfg.SOLVER.CHECKPOINT_PERIOD = checkpoint_period
     cfg.OUTPUT_DIR="./output/"+str(experiment_name)
