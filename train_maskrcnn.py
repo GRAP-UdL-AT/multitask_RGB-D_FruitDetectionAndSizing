@@ -82,11 +82,12 @@ def mapper(dataset_dict):
 
 
 class LossEvalHook(HookBase):
-    def __init__(self, eval_period, model, data_loader,output_dir):
+    def __init__(self, cfg, model, data_loader):
         self._model = model
-        self._period = eval_period
+        self._period = cfg.TEST.EVAL_PERIOD
         self._data_loader = data_loader
-        self._output_dir = output_dir
+        self._output_dir = cfg.OUTPUT_DIR
+        self._diam_loss_weight = cfg.MODEL.ROI_DIAMETER_HEAD.DIAM_LOSS_WEIGHT
     
     def _do_loss_eval(self):
         #pdb.set_trace()
@@ -125,8 +126,14 @@ class LossEvalHook(HookBase):
             diam_losses.append(diam_loss_batch) #added by JGM(add diam_loss_batch to be plotted in tensorboard)
         mean_loss = np.mean(losses)
         mean_diam_loss = np.mean(diam_losses) #added by JGM(add diam_loss_batch to be plotted in tensorboard)
+        mean_det_loss = mean_loss - mean_diam_loss
+        mean_diam_loss_corrected = mean_diam_loss/self._diam_loss_weight
+        mean_loss_corrected = mean_det_loss + mean_diam_loss_corrected
         self.trainer.storage.put_scalar('validation_loss', mean_loss)
         self.trainer.storage.put_scalar('validation_diam_loss', mean_diam_loss) #add by JGM(add diam_loss_batch to be plotted in tensorboard)
+        self.trainer.storage.put_scalar('validation_det_loss', mean_det_loss) #add by JGM(add diam_loss_batch to be plotted in tensorboard)
+        self.trainer.storage.put_scalar('validation_diam_loss_corr', mean_diam_loss_corrected) #add by JGM(add diam_loss_batch to be plotted in tensorboard)
+        self.trainer.storage.put_scalar('validation_loss_corr', mean_loss_corrected) #add by JGM(add diam_loss_batch to be plotted in tensorboard)
         comm.synchronize()
 
         return losses
@@ -177,14 +184,13 @@ class MyTrainer(DefaultTrainer):
         hooks = super().build_hooks()
         #pdb.set_trace()
         hooks.insert(-1,LossEvalHook(
-            cfg.TEST.EVAL_PERIOD,
+            self.cfg,
             self.model,
             build_detection_test_loader(
                 self.cfg,
                 self.cfg.DATASETS.TEST[0],
                 mapper
-            ),
-            cfg.OUTPUT_DIR
+            )
         ))
         return hooks
 
@@ -204,6 +210,9 @@ def parse_args():
     parser.add_argument('--diam_loss_weight',dest='diam_loss_weight',default=1)
     parser.add_argument('--experiment_name',dest='experiment_name',default='trial3')
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
+    parser.add_argument('--batch_size_per_image',dest='bs_per_image',default=512)
+    parser.add_argument('--weights',dest='weights',default='edit_weights.pkl')
+    parser.add_argument('--freeze_det',dest='freeze_det',default=0) # 1 to do not train the instance segmentation branch and only train the diameter regresion branch
     args = parser.parse_args()
 
     return args
@@ -218,6 +227,9 @@ if __name__ == '__main__':
     eval_period = int(args.eval_period)
     experiment_name = args.experiment_name
     dataset_path = args.dataset_path
+    bs_per_image = int(args.bs_per_image)
+    weights_file = args.weights
+    freeze_det = int(args.freeze_det)
  # ------------------------------------------------------------------------------------------------------------------------------
 
     print('***EXPERIMENT:***: ',experiment_name)
@@ -239,12 +251,13 @@ if __name__ == '__main__':
     cfg.DATASETS.TEST =  ("FujiSfM_val",)
     cfg.DATALOADER.NUM_WORKERS = 4
     #cfg.MODEL.WEIGHTS = os.path.join(os.getcwd(),'edit_weights.pkl')
-    cfg.MODEL.WEIGHTS = os.path.join('edit_weights.pkl')
+    #cfg.MODEL.WEIGHTS = os.path.join('edit_weights.pkl')
+    cfg.MODEL.WEIGHTS = weights_file
     #cfg.MODEL.WEIGHTS = os.path.join('/home/usuaris/imatge/mar.ferrer/Fruit_Detectron2_project/recerca/200630-Apple_size_measurement_using_SfM/code/detectron2/output/exp55/model_0005999.pth')
     cfg.SOLVER.IMS_PER_BATCH = bs
     cfg.SOLVER.BASE_LR = lr  # pick a good LR
     cfg.SOLVER.MAX_ITER = max_iter  # 300 iterations seems good enough for this toy dataset; you will need to train longer for a practical dataset
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512   # (default: 512)
+    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = bs_per_image   # (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class . (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
     cfg.TEST.EVAL_PERIOD = eval_period
     cfg.SOLVER.CHECKPOINT_PERIOD = checkpoint_period
@@ -260,6 +273,14 @@ if __name__ == '__main__':
         print('Number of cuda devices = ' + str(torch.cuda.device_count()) + ' ; Current cuda device = ' + torch.cuda.get_device_name(torch.cuda.current_device()))
     else:
         print('Not using cuda devices')
+    if freeze_det == 1:
+        for name, param in trainer.model.named_parameters():
+            if name.find('diameter') == -1:
+                param.requires_grad = False
+                print(name + ' freezed')
+            else:
+                param.requires_grad = True
+                print(name + ' will be trained')
     trainer.train()
     print('FINISHED_TRAINING')
 
