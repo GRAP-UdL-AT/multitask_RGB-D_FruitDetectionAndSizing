@@ -336,17 +336,19 @@ def gt_occ(gt_inst,gt_amod):
 
 
 def extract_polys(mask):
-    mm,contours, h = cv2.findContours(mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # mm,contours, h = cv2.findContours(mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, h = cv2.findContours(mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) #eddited by JGM
     poly = {}
     if len(contours) > 1:
-        base = np.load('base_cont.npy', allow_pickle=True)
+        # base = np.load('base_cont.npy', allow_pickle=True)
         for j, cont in enumerate(contours):
             if j > 0:
                 og = np.concatenate((og, cont), axis=0)
             else:
                 og = cont
-        base[0] = og
-        contours= base
+        # base[0] = og
+        # contours= base
+        contours = (og,)
     for i,cont in enumerate(contours):
         poly[i] = {}
         poly[i]['all_points_x'] = cont[:, 0, 0]

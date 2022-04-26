@@ -139,7 +139,7 @@ class BaseDiamRCNNHead(nn.Module):
         self.output_dir = output_dir
         self.dataset_path = dataset_path
         print("Vis period = " + str(self.vis_period))  #added by JGM
-        print("Diammeter loss weight = " + str(self.loss_weight)) #added by JGM
+        print("Diameter loss weight = " + str(self.loss_weight)) #added by JGM
         print("Output_dir = " + self.output_dir) #added by JGM
         print("Dataset_path = " + self.dataset_path) #added by JGM
 

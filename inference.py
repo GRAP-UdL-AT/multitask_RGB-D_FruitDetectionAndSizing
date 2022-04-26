@@ -27,12 +27,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate detection')
     parser.add_argument('--iou_thr',dest='iou_thr',default=0.5)
     parser.add_argument('--nms_thr',dest='nms_thr',default=0.1)
-    parser.add_argument('--model_path',dest='model_path',default='../output/expnew_data_dec2021/model_0014225_bona.pth')
-    parser.add_argument('--save_metrics',dest='save_metrics',default=False)
-    parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid08/users/mar.ferrer/data_fse/')
+    parser.add_argument('--model_path',dest='model_path',default='./output/trial30_DLW_5_bs4_gpu2_t04ext/model_0002999.pth')
+    parser.add_argument('--save_metrics',dest='save_metrics',default=True)
+    parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     parser.add_argument('--split',dest='split',default='test')
-    parser.add_argument('--task',dest='task',default='detection',help='detection or diameter')
-    parser.add_argument('--confs',dest='confs',default=[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],help='confidences score to iterate over')
+    parser.add_argument('--task',dest='task',default='diameter',help='detection or diameter')
+    parser.add_argument('--test_name',dest='test_name',default='eval_00')
+    #parser.add_argument('--confs',dest='confs',default='0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9',help='confidences score to iterate over')
+    parser.add_argument('--confs',dest='confs',default='0.0,0.99',help='confidences score to iterate over')
     args = parser.parse_args()
 
     return args
@@ -42,40 +44,47 @@ if __name__ == '__main__':
 
 # -----------------------------------------------------------------------------SET PARAMS--------------------------------------------------------------------------------------
     args = parse_args()
-    iou_thr = args.iou_thr
-    nms_thr = args.nms_thr
+    iou_thr = float(args.iou_thr)
+    nms_thr = float(args.nms_thr)
     model_path = args.model_path
+    save_metrics = args.save_metrics
     dataset_path = args.dataset_path
     split = args.split
     task = args.task
+    test_name = args.test_name
+    confidence_scores = [float(i) for i in args.confs.split(',')]
     p_list = []
     r_list = []
     f1_list = []
     ap_list = []
+    mae_list = []
     conf_used = []
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     print('LOADING_DATASET...')
-    if not os.path.exists('dataset_dicts.npy'):
+    if not os.path.exists(split+'_dataset_dicts.npy'):
         dataset_dicts = utils_detection.get_FujiSfM_dicts(dataset_path,split)
-        np.save('dataset_dicts.npy',np.array([dataset_dicts]))
-    dataset_dicts = np.load('dataset_dicts.npy',allow_pickle=True)
+        np.save(split+'_dataset_dicts.npy',np.array([dataset_dicts]))
+    dataset_dicts = np.load(split+'_dataset_dicts.npy',allow_pickle=True)
     
     print('START')
     file = model_path.split('/')[-1]
     exp_name = model_path.split('/')[-2]
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
-    cfg.MODEL.PIXEL_MEAN = [103.530, 116.280, 123.675, 123.675]
-    cfg.MODEL.PIXEL_STD = [1.0, 1.0, 1.0,1.0]
+    cfg.MODEL.PIXEL_MEAN = [103.530, 116.280, 123.675, 1.64]
+    cfg.MODEL.PIXEL_STD = [1.0, 1.0, 1.0,1.42]
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = nms_thr
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.SOLVER.IMS_PER_BATCH = 2
-    cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   # faster, and good enough for this toy dataset (default: 512)
+    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512   # faster, and good enough for this toy dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ballon). (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
+    cfg.DATASET_PATH = dataset_path
+    cfg.OUTPUT_DIR="./output/"+str(exp_name)+"/"+test_name
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 
-    d = 'val'
+    # d = 'val'
+    d = split   #by JGM
     DatasetCatalog.register("FujiSfM_" + d, lambda d=d: utils_detection.get_FujiSfM_dicts(dataset_path,d))
     MetadataCatalog.get("FujiSfM_" + d).set(thing_classes=["apple"])
     FujiSfM_metadata = MetadataCatalog.get("FujiSfM_"+d)
@@ -90,11 +99,10 @@ if __name__ == '__main__':
     print('CALCULATING PRECISION, RECALL AND AP...')
 
 
-    confidence_scores = args.confs
     if task == 'detection':   
         for k,s in enumerate(confidence_scores):
 
-            P,R,F1,AP = metrics_detection.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,iou_thr) 
+            P,R,F1,AP = metrics_detection.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,iou_thr,cfg.OUTPUT_DIR)
 
             p_list.append(P)
             r_list.append(R)
@@ -110,8 +118,24 @@ if __name__ == '__main__':
     elif task == 'diameter':
         for k,s in enumerate(confidence_scores):
  
-            metrics_diameter.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,split,iou_thr,args.save_metrics) 
- 
+            P,R,F1,AP,MAE = metrics_diameter.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,split,iou_thr,save_metrics, cfg.OUTPUT_DIR)
+
+            p_list.append(P)
+            r_list.append(R)
+            f1_list.append(F1)
+            ap_list.append(AP)
+            mae_list.append(MAE)
+            conf_used.append(s)
+
+        if args.save_metrics:
+            np.save(cfg.OUTPUT_DIR+'/array_f1.npy', np.array(f1_list))
+            np.save(cfg.OUTPUT_DIR+'/array_P.npy', np.array(p_list))
+            np.save(cfg.OUTPUT_DIR+'/array_R.npy', np.array(r_list))
+            np.save(cfg.OUTPUT_DIR+'/array_ap.npy', np.array(ap_list[0]))
+            np.save(cfg.OUTPUT_DIR+'/array_mae.npy', np.array(mae_list))
+            np.save(cfg.OUTPUT_DIR+'/array_conf_used.npy', np.array(conf_used))
+
+
     else:
         print('ERROR: THIS TASK IS NOT CONSIDERED: ',task)
 

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pdb
 
 
-def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,iou_thr):
+def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,iou_thr, output_dir):
 
     names = []
     tp = np.array([[]])
@@ -38,7 +38,7 @@ def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,io
             gt_annots = dataset_dicts[0][i]['annotations']
             im = cv2.imread(file_name)
             
-            with open('current_images_inference.txt', 'w') as f:
+            with open(os.path.join(output_dir,'current_images_inference.txt'), 'w') as f:
                 f.write("%s\n" % im_name)   
         
             try:
