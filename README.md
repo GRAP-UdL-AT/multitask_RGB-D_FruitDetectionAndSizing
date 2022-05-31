@@ -45,18 +45,23 @@ This section presents how to train a model that is able to detect, segment and m
 python train.py
 ```
 The default parameters are the following:
-- num_iterations (maximum number of iterations, not epochs) --> 10000
-- checkpoint_period (the model will be stored periodically every X iterations) --> 1000
-- eval_period (the model will be evaluated with the validation set every X iterations) --> 1000
+- num_iterations (maximum number of iterations, not epochs) --> 40000
+- checkpoint_period (the model will be stored periodically every X iterations) --> 500
+- eval_period (the model will be evaluated with the validation set every X iterations) --> 500
 - batch_size --> 2
 - learning_rate --> 0.00025
+- diam_loss_weight --> 1
 - experiment_name (name you want to assing to the experiment) --> "trial"
-- dataset path (path to your data folder) --> "data_fse/"
+- dataset path (path to your data folder) --> "data/"
+- batch_size_per_image --> 512
+- weights --> 'edit_weights.pkl'
+- freeze_det (set to 1 to only train the diameter regresion branch and freeze the weights from detection branch) --> 0
 
-Example: modifying the default learning rate and the batch size:
+Example: modifying some default parameters:
 
 ```
-python train_maskrcnn.py --learning_rate 0.001 --batch_size 4
+python  train.py  --num_iterations 10000  --checkpoint_period 1000 --eval_period 1000 --batch_size 4  --learing_rate 0.000025 --diam_loss_weight 200 --experiment_name "trial_01"
+
 ```
 
 Once the training is complete, the experiment folder containing the epochs will be stored inside an output folder:
@@ -68,12 +73,7 @@ Once the training is complete, the experiment folder containing the epochs will 
 
 ## Inference
 
-This model performs 2 taks in one: 1) detection, 2)diameter estimation. This code tests the 2 tasks separately. 
-
-### Inference on detection
-
-It will reveal the Precision, Recall, F1-score scores in the fruit detection task, along with the Average precision. Similarly to the training file, it can be ran directly:
-
+To test the detection and diameter estimation, simply run 
 ```
 python inference.py
 ```
@@ -81,36 +81,17 @@ The default parameters are the following:
 - iou_thr (minimum IoU in order to be considered a true positive. The IoU is computed between the predicted and ground truth bounding boxes) --> 0.5
 - nms_thr (Non Maximum Suppression threshold) --> 0.1
 - model path (path to the trained model) --> "output/temp/epoch_0.pth"
-- save_metrics (boolean to indicate if the user desires to store the metrics in a separate file) --> False
-- dataset path (path to your data folder) --> "data_fse/"
+- save_metrics (boolean to indicate if the user desires to store the metrics in a separate file) --> True
+- dataset path (path to your data folder) --> "data/"
 - split (data split on which the inference will be performed) --> test
-- task (inference task: detection or diameter estimation) --> "detection"
+- test_name --> 'eval_00'
 - confs (list of minimum confidence scores to iterate over) --> [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 
-Example: performing inference on the validation set and iterating over the minimum confidence scores of 0.1,0.3 and 0.5:
+Example:
 ```
-python inference.py --split 'val' --confs [0.1,0.3,0.5]
-```
-**OUTPUT:** If save_metrics is set to True, numpy arrays containing the values of P, R and F1 for each confidence level, will be stored in the directory. 
-
-**NOTE:** The Average Precision (AP) has to be computed with the minimum confidence score (conf = 0).
-
-
-### Inference on diameter estimation
-
-The file used to compute the diameter errors is the same one as before. To do so, the task has to be indicated:
+python inference.py --nms_thr 0.2 --model_path "output/trial_01/model_0002999.pth" --split 'val' --test_name 'eval_trial_01_val'
 
 ```
-python inference.py --task 'diameter' 
-```
-**OUTPUT:** If save_metrics is set to True, two kind of results will be stored:
-
-1) Folder with a txt per image, where each line of the txt corresponds to one detection. Each line contains: appleId|confidece score|predicted diameter|ground truth diameter|predicted visibility of the apple|ground truth visibility of the apple|x points of the mask|y points of the mask.
-
-2) A numpy array containing all the errors of the apples considered true positives. 
-
-**NOTE:** In the case that the save_metrics boolean is set to true, the good practice is to just iterate over one confidence score, since it will not overwrite the txt files that are already created (so the txt results will belong to the first confidece score). 
-
 
 ## Citation
 
