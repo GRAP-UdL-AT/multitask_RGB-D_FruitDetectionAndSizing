@@ -57,10 +57,11 @@ def mapper(dataset_dict):
     image[:,:,0:3] = image_bgr
     image[:,:,3] = depth_map
     # See "Data Augmentation" tutorial for details usage
-    augs = T.AugmentationList([
-        T.RandomFlip(prob=0.5),
-        T.RandomBrightness(0.9, 1.1)
-    ])
+    #augs = T.AugmentationList([
+    #    T.RandomFlip(prob=0.5),
+    #    T.RandomBrightness(0.9, 1.1)
+    #])
+    augs = T.AugmentationList([])
     auginput = T.AugInput(image)
     transform = augs(auginput)
     image = torch.from_numpy(auginput.image.transpose(2, 0, 1).copy())
@@ -69,6 +70,7 @@ def mapper(dataset_dict):
         utils_detectron.transform_instance_annotations(annotation, [transform], image.shape[1:])
         for annotation in dataset_dict.pop("annotations")
     ]
+
     return {
         # create the format that the model expects
         "filename":dataset_dict['file_name'],

@@ -14,10 +14,12 @@ weights.pickle
 .nfs0000000000038e090000c525
 .nfs0000000000038c4e0000c587
 .nfs000000000003961a0001307b
+.nfs000000000003a09f000005d8
 current_images_inference.txt
 dataset_dicts.npy
 list_of_infer_tests.txt
 list_of_trials.txt
 test_dataset_dicts.npy
 val_dataset_dicts.npy
-prova.py
+
+bkup/*

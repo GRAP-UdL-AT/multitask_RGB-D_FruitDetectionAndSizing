@@ -17,7 +17,7 @@ from detectron2.structures import BoxMode
 import argparse
 import utils_detection, utils_diameter
 from detectron2.utils.visualizer import ColorMode
-import metrics_detection, metrics_diameter
+import eval_metrics
 import pdb, argparse
 
 
@@ -31,10 +31,9 @@ def parse_args():
     parser.add_argument('--save_metrics',dest='save_metrics',default=True)
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     parser.add_argument('--split',dest='split',default='test')
-    parser.add_argument('--task',dest='task',default='diameter',help='detection or diameter')
     parser.add_argument('--test_name',dest='test_name',default='eval_00')
     #parser.add_argument('--confs',dest='confs',default='0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9',help='confidences score to iterate over')
-    parser.add_argument('--confs',dest='confs',default='0.0,0.99',help='confidences score to iterate over')
+    parser.add_argument('--confs',dest='confs',default='0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,0.99',help='confidences score to iterate over')
     args = parser.parse_args()
 
     return args
@@ -50,7 +49,6 @@ if __name__ == '__main__':
     save_metrics = args.save_metrics
     dataset_path = args.dataset_path
     split = args.split
-    task = args.task
     test_name = args.test_name
     confidence_scores = [float(i) for i in args.confs.split(',')]
     p_list = []
@@ -98,48 +96,5 @@ if __name__ == '__main__':
 
     print('CALCULATING PRECISION, RECALL AND AP...')
 
-
-    if task == 'detection':   
-        for k,s in enumerate(confidence_scores):
-
-            P,R,F1,AP = metrics_detection.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,iou_thr,cfg.OUTPUT_DIR)
-
-            p_list.append(P)
-            r_list.append(R)
-            f1_list.append(F1)
-            ap_list.append(AP)
-            conf_used.append(s)
-
-        if args.save_metrics:
-            np.save('array_f1.npy',np.array(f1_list))
-            np.save('array_P.npy',np.array(p_list))
-            np.save('array_R.npy',np.array(r_list))
-            np.save('array_ap.npy',np.array(ap_list[0]))
-    elif task == 'diameter':
-        for k,s in enumerate(confidence_scores):
- 
-            P,R,F1,AP,MAE = metrics_diameter.prec_rec_f1_ap(predictor,dataset_dicts,dataset_path+'images/'+split,s,FujiSfM_metadata,split,iou_thr,save_metrics, cfg.OUTPUT_DIR)
-
-            p_list.append(P)
-            r_list.append(R)
-            f1_list.append(F1)
-            ap_list.append(AP)
-            mae_list.append(MAE)
-            conf_used.append(s)
-
-        if args.save_metrics:
-            np.save(cfg.OUTPUT_DIR+'/array_f1.npy', np.array(f1_list))
-            np.save(cfg.OUTPUT_DIR+'/array_P.npy', np.array(p_list))
-            np.save(cfg.OUTPUT_DIR+'/array_R.npy', np.array(r_list))
-            np.save(cfg.OUTPUT_DIR+'/array_ap.npy', np.array(ap_list[0]))
-            np.save(cfg.OUTPUT_DIR+'/array_mae.npy', np.array(mae_list))
-            np.save(cfg.OUTPUT_DIR+'/array_conf_used.npy', np.array(conf_used))
-
-
-    else:
-        print('ERROR: THIS TASK IS NOT CONSIDERED: ',task)
-
-
-
-
+    P,R,F1,AP,MAE = eval_metrics.prec_rec_f1_ap_MAE(predictor,dataset_dicts,dataset_path+'images/'+split,confidence_scores,split,iou_thr,save_metrics, cfg.OUTPUT_DIR)
                            
