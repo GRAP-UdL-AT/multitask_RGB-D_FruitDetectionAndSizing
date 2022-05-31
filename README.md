@@ -39,10 +39,10 @@ pip install -r requirements.txt
 
 ## Training
 
-This section presents how to train a model that is able to detect, segment and measure apples in the dataset. If the files are organised in the indicated way, *training_maskrcnn.py* is ready to be used directly. 
+This section presents how to train a model that is able to detect, segment and measure apples in the dataset. If the files are organised in the indicated way, *train.py* is ready to be used directly. 
 
 ```
-python train_maskrcnn.py
+python train.py
 ```
 The default parameters are the following:
 - num_iterations (maximum number of iterations, not epochs) --> 10000
