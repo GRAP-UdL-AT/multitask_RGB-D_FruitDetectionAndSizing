@@ -125,7 +125,7 @@ class BaseDiamRCNNHead(nn.Module):
     """
 
     @configurable
-    def __init__(self, *, loss_weight: float = 1.0, vis_period: int = 0):
+    def __init__(self, *, loss_weight: float = 1, vis_period: int = 0, output_dir: str = "/output", dataset_path: str = "/data"):
         """
         NOTE: this interface is experimental.
 
@@ -136,10 +136,16 @@ class BaseDiamRCNNHead(nn.Module):
         super().__init__()
         self.vis_period = vis_period
         self.loss_weight = loss_weight
+        self.output_dir = output_dir
+        self.dataset_path = dataset_path
+        print("Vis period = " + str(self.vis_period))  #added by JGM
+        print("Diameter loss weight = " + str(self.loss_weight)) #added by JGM
+        print("Output_dir = " + self.output_dir) #added by JGM
+        print("Dataset_path = " + self.dataset_path) #added by JGM
 
     @classmethod
     def from_config(cls, cfg, input_shape):
-        return {"vis_period": cfg.VIS_PERIOD}
+        return {"vis_period": cfg.VIS_PERIOD, "loss_weight": cfg.MODEL.ROI_DIAMETER_HEAD.DIAM_LOSS_WEIGHT, "output_dir": cfg.OUTPUT_DIR, "dataset_path": cfg.DATASET_PATH}
 
     def forward(self, x, instances: List[Instances]):
         """
@@ -159,12 +165,13 @@ class BaseDiamRCNNHead(nn.Module):
         if not self.training:
             if len(x[:,0,0,0])>0:
                 # 1. read current image names from current_images.txt
-                with open('current_images_inference.txt') as f:
+                with open(os.path.join(self.output_dir,'current_images_inference.txt')) as f:
                     lines = f.readlines()
                 # 2. load corresponding depth maps
                 # 3. add them to features tensor
                 
-                depth_path = '/mnt/gpid08/users/mar.ferrer/data_fse/depthCropNpy'
+                #depth_path = '/home/usuaris/imatge/jgene/multitask_RGBD/data/depthCropNpy'
+                depth_path = os.path.join(self.dataset_path,'depthCropNpy')
                 name = lines[0].split('.')[0]
                 depth_map = np.load(os.path.join(depth_path,name+'.npy'))
                 dim = len(x[0,0,0,:])

@@ -4,6 +4,7 @@ import itertools
 import logging
 import numpy as np
 import pickle
+import os
 import random
 import torch.utils.data as data
 from torch.utils.data.sampler import Sampler
@@ -163,7 +164,7 @@ class AspectRatioGroupedDataset(data.IterableDataset):
     all with similar aspect ratios.
     """
 
-    def __init__(self, dataset, batch_size):
+    def __init__(self, dataset, batch_size, output_dir):
         """
         Args:
             dataset: an iterable. Each element must be a dict with keys
@@ -173,6 +174,7 @@ class AspectRatioGroupedDataset(data.IterableDataset):
         #pdb.set_trace()
         self.dataset = dataset
         self.batch_size = batch_size
+        self.output_dir = output_dir
         self._buckets = [[] for _ in range(2)]
         # Hard-coded two aspect ratio groups: w > h and w < h.
         # Can add support for more aspect ratio groups, but doesn't seem useful
@@ -187,7 +189,7 @@ class AspectRatioGroupedDataset(data.IterableDataset):
             bucket.append(da)
             if len(bucket) == self.batch_size:
                 #pdb.set_trace()
-                with open('current_images.txt', 'w') as f:
+                with open(os.path.join(self.output_dir,'current_images.txt'), 'w') as f:
                     for item in bucket:
                         f.write("%s\n" % item['filename'])
                 yield bucket[:]

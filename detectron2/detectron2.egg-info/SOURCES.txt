@@ -1,3 +1,4 @@
+LICENSE
 README.md
 setup.cfg
 setup.py
@@ -6,6 +7,11 @@ setup.py
 /mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.cpp
 /mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/cocoeval/cocoeval.cpp
 /mnt/gpid07/imatge/mar.ferrer/detectron2/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.cpp
+/mnt/gpid07/users/jordi.gene/multitask_RGBD/code/multitask_RGB-D_FruitDetectionAndSizing/detectron2/detectron2/layers/csrc/vision.cpp
+/mnt/gpid07/users/jordi.gene/multitask_RGBD/code/multitask_RGB-D_FruitDetectionAndSizing/detectron2/detectron2/layers/csrc/ROIAlignRotated/ROIAlignRotated_cpu.cpp
+/mnt/gpid07/users/jordi.gene/multitask_RGBD/code/multitask_RGB-D_FruitDetectionAndSizing/detectron2/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.cpp
+/mnt/gpid07/users/jordi.gene/multitask_RGBD/code/multitask_RGB-D_FruitDetectionAndSizing/detectron2/detectron2/layers/csrc/cocoeval/cocoeval.cpp
+/mnt/gpid07/users/jordi.gene/multitask_RGBD/code/multitask_RGB-D_FruitDetectionAndSizing/detectron2/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.cpp
 detectron2/__init__.py
 detectron2.egg-info/PKG-INFO
 detectron2.egg-info/SOURCES.txt
@@ -230,6 +236,7 @@ detectron2/modeling/backbone/regnet.py
 detectron2/modeling/backbone/resnet.py
 detectron2/modeling/meta_arch/__init__.py
 detectron2/modeling/meta_arch/build.py
+detectron2/modeling/meta_arch/diameter_reg.py
 detectron2/modeling/meta_arch/panoptic_fpn.py
 detectron2/modeling/meta_arch/rcnn.py
 detectron2/modeling/meta_arch/retinanet.py
@@ -242,10 +249,12 @@ detectron2/modeling/proposal_generator/rrpn.py
 detectron2/modeling/roi_heads/__init__.py
 detectron2/modeling/roi_heads/box_head.py
 detectron2/modeling/roi_heads/cascade_rcnn.py
+detectron2/modeling/roi_heads/diameter_head.py
 detectron2/modeling/roi_heads/fast_rcnn.py
 detectron2/modeling/roi_heads/keypoint_head.py
 detectron2/modeling/roi_heads/mask_head.py
 detectron2/modeling/roi_heads/roi_heads.py
+detectron2/modeling/roi_heads/roi_heads_og.py
 detectron2/modeling/roi_heads/rotated_fast_rcnn.py
 detectron2/projects/__init__.py
 detectron2/solver/__init__.py

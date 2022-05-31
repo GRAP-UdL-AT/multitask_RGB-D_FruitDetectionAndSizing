@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 import pdb,random
 
 
-def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,split,iou_thr,save_metrics):
-    save_path = 'results_txt/'+split+'/'
+def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,split,iou_thr,save_metrics,output_dir):
+    save_path = output_dir+'/results_txt/'+split+'/'
+    if save_metrics:
+        if not os.path.exists(output_dir+'/results_txt/'):
+            os.mkdir(output_dir+'/results_txt/')
+
     names = []
     tp = np.array([[]])
     fp = np.array([[]])
@@ -29,7 +33,6 @@ def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,sp
         iter_ = i
         newIm = True
         file_name = dataset_dicts[0][i]['file_name']
-   
         depth_map = np.load(dataset_dicts[0][i]["depth_file"])
         
         im_name = file_name.split('/')[-1]
@@ -40,7 +43,7 @@ def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,sp
             gt_annots = dataset_dicts[0][i]['annotations']
             im = cv2.imread(file_name)
             
-            with open('current_images_inference.txt', 'w') as f:
+            with open(os.path.join(output_dir,'current_images_inference.txt'), 'w') as f:
                 f.write("%s\n" % im_name)   
             
             try:
@@ -145,11 +148,10 @@ def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,sp
                     if save_metrics:
                         if not os.path.exists(save_path):
                             os.mkdir(save_path)
-                            with open(save_path+im_name.replace('.png','.txt'),'a+') as f:
-                                f.write("\n")
-                                f.write(dict_info_txt['id']+'|'+dict_info_txt['conf']+'|'+dict_info_txt['diam']+'|'+dict_info_txt['gt_diam']+'|'+dict_info_txt['occ']+'|'+dict_info_txt['gt_occ']+'|'+ dict_info_txt['all_points_x']+'|'+dict_info_txt['all_points_y'])
-                        else:
-                            print('CANNOT WRITE METRICS OVER EXISTING FILE')
+                        with open(save_path+im_name.replace('.png','.txt'),'a+') as f:
+                            f.write("\n")
+                            f.write(dict_info_txt['id']+'|'+dict_info_txt['conf']+'|'+dict_info_txt['diam']+'|'+dict_info_txt['gt_diam']+'|'+dict_info_txt['occ']+'|'+dict_info_txt['gt_occ']+'|'+ dict_info_txt['all_points_x']+'|'+dict_info_txt['all_points_y'])
+
                 else:
                     tp_bool.append(False)
 
@@ -168,8 +170,12 @@ def prec_rec_f1_ap(predictor, dataset_dicts, path, score_thr,FujiSfM_metadata,sp
     P = tp_count / (tp_count + fp_count)
     R = tp_count / (gt_num_masks)
     F1 = (2 * P * R) / (P + R)
-    print('MAE:',np.mean(all_errors))
-    if save_metrics:
-        np.save('MAE_intervals_new.npy',np.array(all_means))
+    MAE = np.mean(all_errors)
+    print('PRECISION:', P)
+    print('RECALL:', R)
+    print('F1:', F1)
+    print('MAE:',MAE)
+
+    return P, R, F1, ap, MAE
 
 

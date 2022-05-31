@@ -574,6 +574,8 @@ class StandardROIHeads(ROIHeads):
         keypoint_pooler: Optional[ROIPooler] = None,
         keypoint_head: Optional[nn.Module] = None,
         train_on_pred_boxes: bool = False,
+        output_dir: str = '/output',
+        dataset_path: str = '/data',
         **kwargs,
     ):
         """
@@ -623,11 +625,15 @@ class StandardROIHeads(ROIHeads):
             self.keypoint_head = keypoint_head
 
         self.train_on_pred_boxes = train_on_pred_boxes
+        self.output_dir = output_dir  #added by JGM
+        self.dataset_path = dataset_path  #added by JGM
 
     @classmethod
     def from_config(cls, cfg, input_shape):
         ret = super().from_config(cfg)
         ret["train_on_pred_boxes"] = cfg.MODEL.ROI_BOX_HEAD.TRAIN_ON_PRED_BOXES
+        ret["output_dir"] = cfg.OUTPUT_DIR  #added by JGM
+        ret["dataset_path"] = cfg.DATASET_PATH  #added by JGM
         # Subclasses that have not been updated to use from_config style construction
         # may have overridden _init_*_head methods. In this case, those overridden methods
         # will not be classmethods and we need to avoid trying to call them here.
@@ -817,12 +823,13 @@ class StandardROIHeads(ROIHeads):
             losses.update(self._forward_mask(features, proposals))
             # TODO MAR add depth to each one of the feature blocks (p2,p3...)
             # 1. read current image names from current_images.txt
-            with open('current_images.txt') as f:
+            with open(os.path.join(self.output_dir, 'current_images.txt')) as f:  #added by JGM
                 lines = f.readlines()
             # 2. load corresponding depth maps
             # 3. add them to features tensor
             
-            depth_path = '/mnt/gpid08/users/mar.ferrer/data_fse/depthCropNpy'
+            #depth_path = '/home/usuaris/imatge/jgene/multitask_RGBD/data/depthCropNpy'
+            depth_path = os.path.join(self.dataset_path, 'depthCropNpy') #added by JGM
  
             for k,key in enumerate(features.keys()):
                 for id,line in enumerate(lines):
