@@ -1,7 +1,7 @@
 # Multitask Deep Neural Network for Fruit Detection and Regresion of Fruit Diameters in RGB-D images (based on Detectron2)
 
 ## Introduction
-This project is an extension of the MaskRCNN architecture, that allows to compute the diameter of fruits along with performing background substraction. The baseline for this project has been the detectron2 implementation of the MaskRCNN (https://github.com/facebookresearch/detectron2).
+This project is an extension of the MaskRCNN architecture that allows to compute the diameter of fruits along with performing instance segmentation. The baseline for this project has been the detectron2 implementation of the MaskRCNN (https://github.com/facebookresearch/detectron2).
 
 ## Preparation 
 
