@@ -6,7 +6,7 @@ from tqdm import trange
 
 
 
-def prec_rec_f1_ap_MAE(predictor, dataset_dicts, path, confidence_scores,split,iou_thr,save_metrics,output_dir):
+def prec_rec_f1_ap_MAE(predictor, dataset_dicts, path, confidence_scores,split,iou_thr,save_metrics,output_dir,year='all'):
     save_path = output_dir+'/results_txt/'+split+'/'
     if save_metrics:
         if not os.path.exists(output_dir+'/results_txt/'):
@@ -30,6 +30,14 @@ def prec_rec_f1_ap_MAE(predictor, dataset_dicts, path, confidence_scores,split,i
         
         im_name = file_name.split('/')[-1]
 
+        if year == '2018': #by JGM
+            if int(im_name[4]) > 4:
+                continue
+
+        if year == '2020': #by JGM
+            if int(im_name[4]) < 4:
+                continue
+        print(im_name) #by JGM
         if True:
             names.append(im_name)
             file_name = os.path.join(path, im_name)

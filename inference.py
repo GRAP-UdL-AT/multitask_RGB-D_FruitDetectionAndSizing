@@ -32,6 +32,7 @@ def parse_args():
     parser.add_argument('--dataset_path',dest='dataset_path',default='/mnt/gpid07/users/jordi.gene/multitask_RGBD/data/')
     parser.add_argument('--split',dest='split',default='test')
     parser.add_argument('--test_name',dest='test_name',default='eval_00')
+    parser.add_argument('--year',dest='year',default='all')
     #parser.add_argument('--confs',dest='confs',default='0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9',help='confidences score to iterate over')
     parser.add_argument('--confs',dest='confs',default='0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,0.99',help='confidences score to iterate over')
     args = parser.parse_args()
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     dataset_path = args.dataset_path
     split = args.split
     test_name = args.test_name
+    year = args.year
     confidence_scores = [float(i) for i in args.confs.split(',')]
     p_list = []
     r_list = []
@@ -60,10 +62,11 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     print('LOADING_DATASET...')
-    if not os.path.exists(split+'_dataset_dicts.npy'):
+    dataset_dicts_file = os.path.join(dataset_path,split+'_dataset_dicts.npy')
+    if not os.path.exists(dataset_dicts_file):
         dataset_dicts = utils_detection.get_FujiSfM_dicts(dataset_path,split)
-        np.save(split+'_dataset_dicts.npy',np.array([dataset_dicts]))
-    dataset_dicts = np.load(split+'_dataset_dicts.npy',allow_pickle=True)
+        np.save(dataset_dicts_file,np.array([dataset_dicts]))
+    dataset_dicts = np.load(dataset_dicts_file,allow_pickle=True)
     
     print('START')
     file = model_path.split('/')[-1]
@@ -96,5 +99,5 @@ if __name__ == '__main__':
 
     print('CALCULATING PRECISION, RECALL AND AP...')
 
-    P,R,F1,AP,MAE = eval_metrics.prec_rec_f1_ap_MAE(predictor,dataset_dicts,dataset_path+'images/'+split,confidence_scores,split,iou_thr,save_metrics, cfg.OUTPUT_DIR)
+    P,R,F1,AP,MAE = eval_metrics.prec_rec_f1_ap_MAE(predictor,dataset_dicts,dataset_path+'images/'+split,confidence_scores,split,iou_thr,save_metrics, cfg.OUTPUT_DIR, year)
                            
