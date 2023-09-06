@@ -104,8 +104,8 @@ If you find this implementation or the analysis conducted in our report helpful,
     @article{Farre2022,
         Author = {{Ferrer Ferrer, Mar and Ruiz-Hidalgo, Javier and Gregorio, Eduard and Vilaplana, Veronica and Morros, Josep-Ramon and Gen{\'e}-Mola, Jordi},
         Title = {Simultaneous Fruit Detection and Size Estimation Using Multitask Deep Neural Networks},
-        Journal = {Submitted},
-        Year = {2022}
-        doi = {https://doi.org/Submitted}
+        Journal = {Biosystems Engineering},
+        Year = {2023}
+        doi = {https://doi.org/10.1016/j.biosystemseng.2023.07.010}
     }
 
